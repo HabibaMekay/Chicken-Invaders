@@ -5,6 +5,9 @@ import heapq
 import random
 import math
 import time
+import numpy as np
+
+import algorithms
 
 SHIP_SPEED = 35
 BULLET_SPEED = 35
@@ -544,6 +547,107 @@ def genetic_algorithm(game_env, generations=10, population_size=20, mutation_rat
     best_individual = max(population, key=lambda ind: fitness_function(ind))
     return best_individual
 
+
+
+def Q_learning(game_env):
+    SCREEN_HEIGHT = game_env.SCREEN_HEIGHT
+    SCREEN_WIDTH = game_env.SCREEN_WIDTH
+    ship_y_Q = SCREEN_HEIGHT - 70
+    actions = ["right", "left", "shoot"]
+    Q_table = {}
+    max_position = 290
+    min_position = 90
+
+    def get_starting_location():
+        ship_x_Q = random.choice([90, 140, 190, 240, 290])
+        return ship_x_Q
+
+    root_node = Node(position=get_starting_location(), bullets=[], chickens=[pygame.Rect(90, 50, 40, 40), pygame.Rect(140, 50, 40, 40), pygame.Rect(190, 50, 40, 40), pygame.Rect(240, 50, 40, 40), pygame.Rect(290, 50, 40, 40)])
+
+    def is_terminal_state(node):
+        return len(node.chickens) == 0
+
+    
+    def find_final_path():
+        path = []
+        reward = 0 
+        state = root_node
+        i = 0
+        while not is_terminal_state(state) and i < 100:
+            if state.position not in Q_table:
+                Q_table[state.position] = {action: 0.0 for action in actions}
+            action_index = np.argmax(list(Q_table[state.position].values()))
+            path.append(actions[action_index])
+            
+            new_state = apply_action(state, action_index)
+            
+            # Calculate the reward for the action taken
+            action = actions[action_index]
+            reward += calculate_reward(action, state)  # Accumulate reward
+            
+            state = new_state  
+            i += 1
+        return path, reward
+
+
+    def get_next_action(node, epsilon):
+        state = node.position
+        if state not in Q_table:
+            Q_table[state] = {action: 0.0 for action in actions}
+        if np.random.random() < epsilon:
+            return np.random.randint(3) 
+        else:
+            return np.argmax(Q_table[state])  
+
+    def apply_action(current_node, action_index):
+        new_node = Node(position=current_node.position, bullets=current_node.bullets.copy(), chickens=current_node.chickens.copy())
+        if actions[action_index] == 'right' and new_node.position < 290:
+            new_node.position += 50
+        elif actions[action_index] == 'left' and new_node.position > 90:
+            new_node.position -= 50
+        elif actions[action_index] == 'shoot':
+            game_env.shoot()
+            new_node.bullets.append(pygame.Rect(new_node.position + 30, game_env.ship_y, 5, 10))
+        return new_node
+
+    def calculate_reward(action, current_node):
+        if action == "shoot" and any(chicken.colliderect(bullet) for bullet in current_node.bullets for chicken in current_node.chickens):
+            return 10
+        elif action == "shoot":
+            return -5
+        else:
+            return -1
+
+    for episode in range(100):
+        current_node = root_node
+        steps = 0
+        while not is_terminal_state(current_node) and steps < 1000:
+            steps += 1
+            state = current_node
+
+            action_index = get_next_action(state, epsilon=0.1)
+            next_node = apply_action(state, action_index)
+
+            reward = calculate_reward(actions[action_index], state)
+            next_state = next_node.position
+            if next_state not in Q_table:
+                Q_table[next_state] = {action: 0.0 for action in actions}
+
+            Q_table[state.position][actions[action_index]] += 0.1 * (reward + 0.9 * max(Q_table[next_state].values()) - Q_table[state.position][actions[action_index]])
+
+            current_node = next_node
+        # Print Q-table at each episode
+        print(f"Episode {episode + 1}: Q-table")
+        for state in Q_table:
+            print(f"State {state}: {Q_table[state]}")
+
+    # Print final best path
+    best_path, reward = find_final_path()
+    print(f"Best Path: {best_path}")
+    print(f"\n\n\nReward is {reward}")
+        
+
+
 #simulator function that simulates the solution of each path in the algorithm usung a gui
 def simulate_game(game_env, algorithm, algorithm_name): 
     actions_taken = []
@@ -654,6 +758,9 @@ def simulate_genetic(game_env, generations=10, population_size=20, mutation_rate
 def main():
     game_env = GameEnvironment()
 
+    Q_learning(game_env)
+
+    game_env.reset()
     t0 = time.perf_counter()
     actions = simulate_game(game_env, bfs,'BFS')  
     t1 = time.perf_counter()
