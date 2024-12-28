@@ -117,7 +117,7 @@ class QLearningAgent:
 def main():
     pygame.init()
     game_env = GameEnvironment()
-    total_reward=0
+    
 
     state_space = (game_env.SCREEN_WIDTH // 10,)
     action_space = ['move_left', 'move_right', 'fire_bullet']
@@ -129,6 +129,7 @@ def main():
     for episode in range(total_training_episodes):
         game_env.reset()
         steps_in_episode = 0  #keeps track of steps in episode
+        total_reward=0
 
         while game_env.chickens:
             state = (game_env.ship_x // 10,)
