@@ -117,6 +117,7 @@ class QLearningAgent:
 def main():
     pygame.init()
     game_env = GameEnvironment()
+    total_reward=0
 
     state_space = (game_env.SCREEN_WIDTH // 10,)
     action_space = ['move_left', 'move_right', 'fire_bullet']
