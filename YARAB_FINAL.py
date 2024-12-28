@@ -3,8 +3,9 @@ import random
 import numpy as np
 import sys
 
+# class to set up the game environment
 class GameEnvironment:
-    def __init__(self, width=800, height=600):
+    def __init__(self, width=800, height=600): 
         pygame.init()
         self.SCREEN_WIDTH = width
         self.SCREEN_HEIGHT = height
@@ -35,7 +36,7 @@ class GameEnvironment:
             print(f"Make sure '{path}' is in the same folder as this script!")
             sys.exit()
 
-    def create_chickens(self): 
+    def create_chickens(self): #create grid of chickens
         chickens = []
         for i in range(5):  
             for j in range(5):
@@ -51,14 +52,14 @@ class GameEnvironment:
         self.last_bullet_time = 0
         self.last_shot_time = pygame.time.get_ticks()
 
-    def draw_spaceship(self):
+    def draw_spaceship(self): #draw spaceship image
         self.screen.blit(self.spaceship_image, (self.ship_x, self.ship_y))
 
-    def draw_chickens(self):
+    def draw_chickens(self): #draw chickens
         for chicken in self.chickens:
             self.screen.blit(self.chicken_image, (chicken.x, chicken.y))
 
-    def draw_bullet(self):
+    def draw_bullet(self): #draw bullets
         if self.active_bullet:
             pygame.draw.rect(self.screen, (255, 0, 0), self.active_bullet)
 
@@ -71,10 +72,10 @@ class GameEnvironment:
 
     def calculate_reward(self, action, hit_chicken=False):
         reward = 0
-        
-        if hit_chicken:
+
+        if hit_chicken: #add 10 reward if we hit a chicken
             reward += 10  
-        else:
+        else: #otherwise theres a -0.01 pentalty 
             reward -= -0.01  
         
         return reward
@@ -90,13 +91,13 @@ class QLearningAgent:
         self.exploration_decay = exploration_decay
         self.q_table = np.zeros(state_space + (len(action_space),))
 
-    def choose_action(self, state):
+    def choose_action(self, state): # random action or take from q table depending on if random int smaller than exploration rate ot not
         if random.uniform(0, 1) < self.exploration_rate:
             return random.choice(range(len(self.action_space)))
         else:
             return np.argmax(self.q_table[state])
 
-    def learn(self, state, action, reward, next_state):
+    def learn(self, state, action, reward, next_state): #use bellman equation
         predict = self.q_table[state][action]
         target = reward + self.discount_factor * np.max(self.q_table[next_state])
         self.q_table[state][action] += self.learning_rate * (target - predict)
@@ -104,7 +105,7 @@ class QLearningAgent:
     def update_exploration_rate(self):
         self.exploration_rate *= self.exploration_decay
 
-    def get_policy(self):
+    def get_policy(self): # to print policy for each state at end
         policy = {}
         for ship_x in range(self.state_space[0]):  
             state = (ship_x,)
@@ -121,20 +122,19 @@ def main():
     action_space = ['move_left', 'move_right', 'fire_bullet']
     agent = QLearningAgent(state_space, action_space)
 
-    total_training_episodes = 10 
+    total_training_episodes = 10
     rewards_per_episode = []
 
     for episode in range(total_training_episodes):
         game_env.reset()
-        total_reward = 0
-        steps_in_episode = 0  
+        steps_in_episode = 0  #keeps track of steps in episode
 
         while game_env.chickens:
             state = (game_env.ship_x // 10,)
 
             action_index = agent.choose_action(state)
             action = action_space[action_index]
-
+            #visualize the game
             if action == 'move_left':
                 game_env.ship_x = max(0, game_env.ship_x - 10)
             elif action == 'move_right':
@@ -149,7 +149,7 @@ def main():
                 game_env.active_bullet.y -= 5
                 if game_env.active_bullet.y < 0:
                     game_env.active_bullet = None
-
+                #handles when chickens are hit 
                 for chicken in game_env.chickens[:]:
                     if game_env.active_bullet and game_env.active_bullet.colliderect(chicken):
                         game_env.chickens.remove(chicken)
@@ -177,6 +177,7 @@ def main():
 
         print(f"Episode {episode + 1}/{total_training_episodes}, Steps: {steps_in_episode}, Total Reward: {total_reward}")
  
+        #to print q values at middle and end
         if episode == 5:
             print("Midway Q-values:")
             print(agent.q_table)
