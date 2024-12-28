@@ -64,17 +64,19 @@ class GameEnvironment:
 
     def shoot(self):    
         current_time = pygame.time.get_ticks()
-        if current_time - self.last_shot_time > BULLET_COOLDOWN:
+        if current_time - self.last_shot_time > 500:  # BULLET_COOLDOWN
             bullet = pygame.Rect(self.ship_x + 30, self.ship_y, 5, 10)
             self.bullets.append(bullet)
             self.last_shot_time = current_time
 
-    def calculate_reward(self, action):
+    def calculate_reward(self, action, hit_chicken=False):
         reward = 0
         if action == 'fire_bullet':
-            reward = 1  
-        elif action == 'hit_chicken' and self.active_bullet:
-            reward = 10 
+            reward = 0.01 
+        
+        if hit_chicken:
+            reward += 10  
+        
         return reward
 
 
@@ -111,19 +113,20 @@ def main():
     action_space = ['move_left', 'move_right', 'fire_bullet']
     agent = QLearningAgent(state_space, action_space)
 
-    episodes = 1000
-    rewards = []
+    total_training_episodes = 10 
+    rewards_per_episode = []
 
-    for episode in range(episodes):
+    for episode in range(total_training_episodes):
         game_env.reset()
         total_reward = 0
+        steps_in_episode = 0  
 
         while game_env.chickens:
             state = (game_env.ship_x // 10,)
+
             action_index = agent.choose_action(state)
             action = action_space[action_index]
 
-            # Execute action
             if action == 'move_left':
                 game_env.ship_x = max(0, game_env.ship_x - 10)
             elif action == 'move_right':
@@ -131,7 +134,9 @@ def main():
             elif action == 'fire_bullet' and game_env.active_bullet is None:
                 game_env.active_bullet = pygame.Rect(game_env.ship_x + 30, game_env.ship_y, 4, 10)
 
-            # Update bullets and chickens
+
+            hit_chicken = False  
+
             if game_env.active_bullet:
                 game_env.active_bullet.y -= 5
                 if game_env.active_bullet.y < 0:
@@ -141,11 +146,14 @@ def main():
                     if game_env.active_bullet and game_env.active_bullet.colliderect(chicken):
                         game_env.chickens.remove(chicken)
                         game_env.active_bullet = None
-                        total_reward += game_env.calculate_reward('hit_chicken')
+                        hit_chicken = True  
 
-            # Calculate reward for firing bullet
-            reward = game_env.calculate_reward(action)
+
+            reward = game_env.calculate_reward(action, hit_chicken)
+            total_reward += reward
             next_state = (game_env.ship_x // 10,)
+
+ 
             agent.learn(state, action_index, reward, next_state)
 
             game_env.screen.fill((0, 0, 0))
@@ -154,11 +162,22 @@ def main():
             game_env.draw_bullet()
             pygame.display.flip()
 
-        rewards.append(total_reward)
+            steps_in_episode += 1 
+
+        rewards_per_episode.append(total_reward)  
         agent.update_exploration_rate()
 
+        print(f"Episode {episode + 1}/{total_training_episodes}, Steps: {steps_in_episode}, Total Reward: {total_reward}")
+ 
+        if episode == 5:
+            print("Midway Q-values:")
+            print(agent.q_table)
+        if episode == total_training_episodes - 1:
+            print("Final Q-values:")
+            print(agent.q_table)
+
     pygame.quit()
-    print("Training complete. Rewards per episode:", rewards)
+    print("Training complete. Rewards per episode:", rewards_per_episode)
 
 if __name__ == "__main__":
     main()
