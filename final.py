@@ -7,6 +7,7 @@ import math
 import time
 import numpy as np
 
+
 import algorithms
 
 SHIP_SPEED = 35
@@ -557,6 +558,7 @@ def Q_learning(game_env):
     Q_table = {}
     max_position = 290
     min_position = 90
+    midway = None
 
     def get_starting_location():
         ship_x_Q = random.choice([90, 140, 190, 240, 290])
@@ -636,6 +638,21 @@ def Q_learning(game_env):
             Q_table[state.position][actions[action_index]] += 0.1 * (reward + 0.9 * max(Q_table[next_state].values()) - Q_table[state.position][actions[action_index]])
 
             current_node = next_node
+
+        if episode == 49:
+            midway = {state: q.copy() for state, q in Q_table.items()}
+        
+    print("\nMidway Q-values (Episode 50):")
+    for state, values in midway.items():
+        print(f"State {state}: {values}")
+
+    print("\nFinal Q-values (Episode 100):")
+    for state, values in Q_table.items():
+        print(f"State {state}: {values}")
+    print("\nPolicy Learned:")
+    for state in Q_table:
+        best_action = max(Q_table[state], key=Q_table[state].get)
+        print(f"State {state}: Best action is {best_action}")
         # Print Q-table at each episode
         print(f"Episode {episode + 1}: Q-table")
         for state in Q_table:
