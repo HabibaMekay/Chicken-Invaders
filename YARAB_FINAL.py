@@ -71,11 +71,11 @@ class GameEnvironment:
 
     def calculate_reward(self, action, hit_chicken=False):
         reward = 0
-        if action == 'fire_bullet':
-            reward = 0.01 
         
         if hit_chicken:
             reward += 10  
+        else:
+            reward -= -0.01  
         
         return reward
 
