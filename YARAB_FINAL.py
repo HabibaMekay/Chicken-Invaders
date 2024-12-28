@@ -104,6 +104,14 @@ class QLearningAgent:
     def update_exploration_rate(self):
         self.exploration_rate *= self.exploration_decay
 
+    def get_policy(self):
+        policy = {}
+        for ship_x in range(self.state_space[0]):  
+            state = (ship_x,)
+            best_action_index = np.argmax(self.q_table[state])  
+            policy[state] = self.action_space[best_action_index]
+        return policy
+
 
 def main():
     pygame.init()
@@ -175,6 +183,11 @@ def main():
         if episode == total_training_episodes - 1:
             print("Final Q-values:")
             print(agent.q_table)
+
+    policy = agent.get_policy()
+    print("Learned Policy:")
+    for state, action in policy.items():
+        print(f"State {state}: Action '{action}'")
 
     pygame.quit()
     print("Training complete. Rewards per episode:", rewards_per_episode)
