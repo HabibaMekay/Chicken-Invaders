@@ -16,10 +16,10 @@ class GameEnvironment:
         self.spaceship_image = self.load_image("spaceship3.png", (60, 60))
         self.chicken_image = self.load_image("chicken.png", (40, 40))
         
-        self.ship_x = (self.SCREEN_WIDTH - 60) // 2
+        self.ship_x = (self.SCREEN_WIDTH - 60) // 2 #positining the spaceship
         self.ship_y = self.SCREEN_HEIGHT - 60 - 10
         self.bullets = []
-        self.initial_chickens = self.create_chickens()
+        self.initial_chickens = self.create_chickens() #chickens on the screen
         self.chickens = self.initial_chickens.copy()  
         self.last_shot_time = pygame.time.get_ticks()
         self.active_bullet = None
@@ -30,7 +30,7 @@ class GameEnvironment:
 
     def load_image(self, path, size):
         try:
-            image = pygame.image.load(path)
+            image = pygame.image.load(path) #load the chicken and spaceship photos 
             return pygame.transform.scale(image, size)
         except FileNotFoundError:
             print(f"Make sure '{path}' is in the same folder as this script!")
@@ -38,8 +38,8 @@ class GameEnvironment:
 
     def create_chickens(self): #create grid of chickens
         chickens = []
-        for i in range(5):  
-            for j in range(5):
+        for i in range(5):  #5 rows
+            for j in range(5): #5 coulmns
                 chickens.append(pygame.Rect(100 + j * (40 + 10), 50 + i * (40 + 10), 40, 40))
         return chickens
 
@@ -63,7 +63,7 @@ class GameEnvironment:
         if self.active_bullet:
             pygame.draw.rect(self.screen, (255, 0, 0), self.active_bullet)
 
-    def shoot(self):    
+    def shoot(self):    #shoot spaceship
         current_time = pygame.time.get_ticks()
         if current_time - self.last_shot_time > 500:  # BULLET_COOLDOWN
             bullet = pygame.Rect(self.ship_x + 30, self.ship_y, 5, 10)
@@ -81,7 +81,7 @@ class GameEnvironment:
         return reward
 
 
-class QLearningAgent:
+class QLearningAgent: #q learning 
     def __init__(self, state_space, action_space, learning_rate=0.3, discount_factor=0.9, exploration_rate=0.7, exploration_decay=0.995):
         self.state_space = state_space
         self.action_space = action_space
