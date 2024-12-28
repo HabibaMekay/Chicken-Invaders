@@ -775,99 +775,101 @@ def simulate_genetic(game_env, generations=10, population_size=20, mutation_rate
 def main():
     game_env = GameEnvironment()
 
-    Q_learning(game_env)
+    Q = Q_learning(game_env)
+    actions = simulate_game(game_env, Q,'BFS')  
 
-    game_env.reset()
-    t0 = time.perf_counter()
-    actions = simulate_game(game_env, bfs,'BFS')  
-    t1 = time.perf_counter()
-    timeBFS = t1-t0
-    print(actions) 
+    # game_env.reset()
+    # t0 = time.perf_counter()
+    # actions = simulate_game(game_env, bfs,'BFS')  
+    # t1 = time.perf_counter()
+    # timeBFS = t1-t0
+    # print(actions) 
 
-    game_env.reset()
-    t0 = time.perf_counter()
-    actions = simulate_game(game_env, dfs,"DFS")  
-    t1 = time.perf_counter()
-    timeDFS = t1-t0
-    print(actions)
+    # game_env.reset()
+    # t0 = time.perf_counter()
+    # actions = simulate_game(game_env, dfs,"DFS")  
+    # t1 = time.perf_counter()
+    # timeDFS = t1-t0
+    # print(actions)
     
-    game_env.reset()
-    t0 = time.perf_counter()
-    actions = simulate_game(game_env, ids, 'IDS')
-    t1 = time.perf_counter()
-    timeIDS = t1-t0
-    print(actions)
+    # game_env.reset()
+    # t0 = time.perf_counter()
+    # actions = simulate_game(game_env, ids, 'IDS')
+    # t1 = time.perf_counter()
+    # timeIDS = t1-t0
+    # print(actions)
 
-    game_env.reset()
-    t0 = time.perf_counter()
-    actions = simulate_game(game_env, ucs,'UCS')
-    t1 = time.perf_counter()
-    timeUCS = t1-t0
-    print(actions)   
+    # game_env.reset()
+    # t0 = time.perf_counter()
+    # actions = simulate_game(game_env, ucs,'UCS')
+    # t1 = time.perf_counter()
+    # timeUCS = t1-t0
+    # print(actions)   
 
-    game_env.reset()
-    t0 =time.perf_counter()
-    actions = simulate_game(game_env, greedy_search,'Greedy')  
-    t1 = time.perf_counter()
-    timeGreedy = t1-t0
-    print(actions)
+    # game_env.reset()
+    # t0 =time.perf_counter()
+    # actions = simulate_game(game_env, greedy_search,'Greedy')  
+    # t1 = time.perf_counter()
+    # timeGreedy = t1-t0
+    # print(actions)
 
-    game_env.reset()
-    t0 =time.perf_counter()
-    actions = simulate_game(game_env, greedyheuristic2,'Greedy 2')  
-    t1 = time.perf_counter()
-    timeGreedy2 = t1-t0
-    print(actions)
+    # game_env.reset()
+    # t0 =time.perf_counter()
+    # actions = simulate_game(game_env, greedyheuristic2,'Greedy 2')  
+    # t1 = time.perf_counter()
+    # timeGreedy2 = t1-t0
+    # print(actions)
 
     
-    game_env.reset()
-    t0 =time.perf_counter()
-    actions = simulate_game(game_env, astar,'A* ')  
-    t1 = time.perf_counter()
-    timeAStar = t1-t0
-    print(actions)
+    # game_env.reset()
+    # t0 =time.perf_counter()
+    # actions = simulate_game(game_env, astar,'A* ')  
+    # t1 = time.perf_counter()
+    # timeAStar = t1-t0
+    # print(actions)
 
-    game_env.reset()
-    t0 =time.perf_counter()
-    actions = simulate_game(game_env, astar2,'A* 2')  
-    t1 = time.perf_counter()
-    timeAStar2 = t1-t0
-    print(actions)
+    # game_env.reset()
+    # t0 =time.perf_counter()
+    # actions = simulate_game(game_env, astar2,'A* 2')  
+    # t1 = time.perf_counter()
+    # timeAStar2 = t1-t0
+    # print(actions)
     
-    game_env.reset()
-    t0 =time.perf_counter()
-    actions = simulate_game(game_env, hill_climbing,"Hill Climbing")
-    t1 = time.perf_counter()
-    timeHill = t1-t0
-    print(actions)
+    # game_env.reset()
+    # t0 =time.perf_counter()
+    # actions = simulate_game(game_env, hill_climbing,"Hill Climbing")
+    # t1 = time.perf_counter()
+    # timeHill = t1-t0
+    # print(actions)
 
-    game_env.reset()
-    t0 =time.perf_counter()
-    actions = simulate_game(game_env, simulated_annealing,"Simulated Annealing") 
-    t1 = time.perf_counter()
-    timeSimualated = t1-t0
-    print(actions)
+    # game_env.reset()
+    # t0 =time.perf_counter()
+    # actions = simulate_game(game_env, simulated_annealing,"Simulated Annealing") 
+    # t1 = time.perf_counter()
+    # timeSimualated = t1-t0
+    # print(actions)
 
 
-    game_env.reset()
-    t0 =time.perf_counter()
-    simulate_genetic(game_env)
-    t1 = time.perf_counter()
-    timeGenetic = t1-t0
-    print(actions)
+    # game_env.reset()
+    # t0 =time.perf_counter()
+    # simulate_genetic(game_env)
+    # t1 = time.perf_counter()
+    # timeGenetic = t1-t0
+    # print(actions)
+
     
     
-    print(f"BFS steps: {stepsBFS} and time:{timeBFS} and max frontier:{maxFrontierBFS}")
-    print(f"DFS steps: {stepsDFS} and time:{timeDFS} and max frontier:{maxFrontierDFS}") 
-    print(f"IDS steps: {stepsIDS} and time:{timeIDS} and max frontier:{maxFrontierIDS}")
-    print(f"UCS steps: {stepsUCS} and time:{timeUCS} and max frontier:{maxFrontierUCS}")
-    print(f"Greddy steps: {stepsGreedy} and time:{timeGreedy}")# and max frontier:{maxFrontierGreedy}") 
-    print(f"Greddy Heuristic 2 steps: {stepsGreedy} and time:{timeGreedy2}")# and max frontier:{maxFrontierGreedy}") 
-    print(f"A* steps: {stepsAStar} and time:{timeAStar} and max frontier:{maxFrontierAStar}") 
-    print(f"A* steps: {stepsAStar2} and time:{timeAStar2} and max frontier:{maxFrontierAStar2}") 
-    print(f"Hill climbing steps: {stepsHill} and time:{timeHill}")# and max frontier:{maxFrontierHill}")  
-    print(f"Simulated Annealing steps: {stepsAnnealing} and time:{timeSimualated}")# and max frontier:{maxFrontierHill}")  
-    print(f"Genetic Algorithm steps: {stepsGenetic} and time:{timeGenetic}")# and max frontier:{maxFrontierHill}")  
+    # print(f"BFS steps: {stepsBFS} and time:{timeBFS} and max frontier:{maxFrontierBFS}")
+    # print(f"DFS steps: {stepsDFS} and time:{timeDFS} and max frontier:{maxFrontierDFS}") 
+    # print(f"IDS steps: {stepsIDS} and time:{timeIDS} and max frontier:{maxFrontierIDS}")
+    # print(f"UCS steps: {stepsUCS} and time:{timeUCS} and max frontier:{maxFrontierUCS}")
+    # print(f"Greddy steps: {stepsGreedy} and time:{timeGreedy}")# and max frontier:{maxFrontierGreedy}") 
+    # print(f"Greddy Heuristic 2 steps: {stepsGreedy} and time:{timeGreedy2}")# and max frontier:{maxFrontierGreedy}") 
+    # print(f"A* steps: {stepsAStar} and time:{timeAStar} and max frontier:{maxFrontierAStar}") 
+    # print(f"A* steps: {stepsAStar2} and time:{timeAStar2} and max frontier:{maxFrontierAStar2}") 
+    # print(f"Hill climbing steps: {stepsHill} and time:{timeHill}")# and max frontier:{maxFrontierHill}")  
+    # print(f"Simulated Annealing steps: {stepsAnnealing} and time:{timeSimualated}")# and max frontier:{maxFrontierHill}")  
+    # print(f"Genetic Algorithm steps: {stepsGenetic} and time:{timeGenetic}")# and max frontier:{maxFrontierHill}")  
 
 if __name__ == "__main__":
     main()

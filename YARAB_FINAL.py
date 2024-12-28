@@ -28,7 +28,6 @@ class GameEnvironment:
         self.screen.blit(rendered_text, (x, y))
 
     def load_image(self, path, size):
- 
         try:
             image = pygame.image.load(path)
             return pygame.transform.scale(image, size)
@@ -38,48 +37,49 @@ class GameEnvironment:
 
     def create_chickens(self): 
         chickens = []
-    
         for i in range(5):  
             for j in range(5):
                 chickens.append(pygame.Rect(100 + j * (40 + 10), 50 + i * (40 + 10), 40, 40))
         return chickens
 
-
     def reset(self):
-
         self.ship_x = (self.SCREEN_WIDTH - 60) // 2
         self.ship_y = self.SCREEN_HEIGHT - 60 - 10
         self.bullets = []
         self.chickens = self.initial_chickens.copy()
-
         self.active_bullet = None
         self.last_bullet_time = 0
         self.last_shot_time = pygame.time.get_ticks()
 
     def draw_spaceship(self):
-
         self.screen.blit(self.spaceship_image, (self.ship_x, self.ship_y))
 
     def draw_chickens(self):
-
         for chicken in self.chickens:
             self.screen.blit(self.chicken_image, (chicken.x, chicken.y))
 
     def draw_bullet(self):
-
         if self.active_bullet:
             pygame.draw.rect(self.screen, (255, 0, 0), self.active_bullet)
 
     def shoot(self):    
-
         current_time = pygame.time.get_ticks()
         if current_time - self.last_shot_time > BULLET_COOLDOWN:
             bullet = pygame.Rect(self.ship_x + 30, self.ship_y, 5, 10)
             self.bullets.append(bullet)
             self.last_shot_time = current_time
 
+    def calculate_reward(self, action):
+        reward = 0
+        if action == 'fire_bullet':
+            reward = 1  
+        elif action == 'hit_chicken' and self.active_bullet:
+            reward = 10 
+        return reward
+
+
 class QLearningAgent:
-    def __init__(self, state_space, action_space, learning_rate=0.5, discount_factor=0.99, exploration_rate=0.7, exploration_decay=0.995):
+    def __init__(self, state_space, action_space, learning_rate=0.3, discount_factor=0.9, exploration_rate=0.7, exploration_decay=0.995):
         self.state_space = state_space
         self.action_space = action_space
         self.learning_rate = learning_rate
@@ -107,7 +107,6 @@ def main():
     pygame.init()
     game_env = GameEnvironment()
 
-
     state_space = (game_env.SCREEN_WIDTH // 10,)
     action_space = ['move_left', 'move_right', 'fire_bullet']
     agent = QLearningAgent(state_space, action_space)
@@ -124,7 +123,7 @@ def main():
             action_index = agent.choose_action(state)
             action = action_space[action_index]
 
-         
+            # Execute action
             if action == 'move_left':
                 game_env.ship_x = max(0, game_env.ship_x - 10)
             elif action == 'move_right':
@@ -132,6 +131,7 @@ def main():
             elif action == 'fire_bullet' and game_env.active_bullet is None:
                 game_env.active_bullet = pygame.Rect(game_env.ship_x + 30, game_env.ship_y, 4, 10)
 
+            # Update bullets and chickens
             if game_env.active_bullet:
                 game_env.active_bullet.y -= 5
                 if game_env.active_bullet.y < 0:
@@ -141,10 +141,11 @@ def main():
                     if game_env.active_bullet and game_env.active_bullet.colliderect(chicken):
                         game_env.chickens.remove(chicken)
                         game_env.active_bullet = None
-                        total_reward += 10
+                        total_reward += game_env.calculate_reward('hit_chicken')
 
+            # Calculate reward for firing bullet
+            reward = game_env.calculate_reward(action)
             next_state = (game_env.ship_x // 10,)
-            reward = 1 if action == 'fire_bullet' else 0
             agent.learn(state, action_index, reward, next_state)
 
             game_env.screen.fill((0, 0, 0))
